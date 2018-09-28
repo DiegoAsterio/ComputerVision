@@ -1,6 +1,6 @@
 import numpy as np
 import cv2 as cv
-import pdb
+# import pdb
 
 def leeImagen(filename, flagColor):
     return cv.imread(filename, flagColor) # cv.IMREAD_GRAYSCALE OR cv.IMREAD_COLOR
