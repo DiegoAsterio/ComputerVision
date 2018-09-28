@@ -1,5 +1,6 @@
 import numpy as np
 import cv2 as cv
+import pdb
 
 def leeImagen(filename, flagColor):
     return cv.imread(filename, flagColor) # cv.IMREAD_GRAYSCALE OR cv.IMREAD_COLOR
@@ -13,55 +14,57 @@ def pintaI(im):
 def transformarColor(vim):
     ret =[]
     for im in vim:
-        ancho, largo, profundo = im.shape()
+        alto, ancho, profundo = im.shape
         if profundo != 3:
             mat = cv.cvtColor(im,COLOR_RGB2Luv)
             ret.append(mat)
-        ret.append(np.copy(im))
+        else:
+            ret.append(np.copy(im))
     return ret
 
-def getLargoMaximo(vim):
-    largoMaximo = 0
+def getAltoMaximo(vim):
+    altoMaximo = 0
     for im in vim:
-        an, lar, pro = im.shape()
-        if lar > largoMaximo:
-            lar = largoMaximo
-    return largoMaximo
+        alto, ancho, pro = im.shape
+        if  alto > altoMaximo:
+            altoMaximo = alto
+    return altoMaximo
 
-def rellenaLargo(vimOrig, largoMaximo):
+def rellenaPorDebajo(vimOrig, altoMaximo):
     vim = np.copy(vimOrig)
     for i in range(len(vim)):             
-        ancho , largo, profundo = vim[i].shape()
-        mat = block([
-            [im],
-            [np.zeros(ancho*(largoMaximo-largo)*3).reshape(ancho,largoMaximo-largo,3)]
-             ])
+        alto , ancho, profundo = vim[i].shape
+        mat = cv.vconcat([vim[i],np.zeros((altoMaximo-alto,ancho,3), dtype=np.uint8)])
         vim[i] = mat
     return vim
             
 def pintaVarias(vim):
     cv.namedWindow('varias', cv.WINDOW_AUTOSIZE)
+    vimColor = vim
     vimColor = transformarColor(vim)
-    largoMaximo = getLargoMaximo(vim)
-    vimColor = rellenaLargo(vimColor)
-    imAImprimir = vimColor[0]                
-    for i in range(1,len(vimColor)):
-        imAImprimir = cv.hconcat((vimColor,imAImprimir)) # (1) Puede quede un fallo porque opencv tiene largo y ancho permutados VEASE (2)
+    altoMaximo = getAltoMaximo(vim)
+#    pdb.set_trace()
+    vimColor = rellenaPorDebajo(vimColor,altoMaximo)
+    
+    imAImprimir = vimColor[0]
+    for i in range(1,len(vim)):
+        imAImprimir = cv.hconcat([imAImprimir,vimColor[i]]) 
+        pdb.set_trace()
     cv.imshow('varias', imAImprimir)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
-def modI(im, vpix):             # Esta modificacion es arbitraria ?
-    for x, y in vpix:
-        im[y,x,0] = 0           # (2) Aqui tuve en cuenta la permutacion sera vd?
+def modI(im, vpix):             
+    for y, x in vpix:
+        im[y,x,0] = 0           
 
 def pintaVentana(vfilename):
     imagenes = []
     for name in vfilename:
-        imagenSinTitulo = pintaI(name, cv.IMREAD_COLOR)
-        ancho, largo, profundo = imagenSinTitulo.shape()
-        nuevaImagen = np.stack( (np.zeros(50*largo*3).reshape(50,largo,3),imagenSinTitulo))
-        imagenConTitulo = cv.putText(nuevaImagen, name, (int(0.25*width), 30), cv2.FONT_HERSHEY_COMPLEX, 1, np.array([255, 0, 0])) # inspiration came from https://stackoverflow.com/questions/42420470/opencv-subplots-images-with-titles-and-space-around-borders#42421245
+        imagenSinTitulo = leeImagen(name, cv.IMREAD_COLOR)
+        alto, ancho, profundo = imagenSinTitulo.shape
+        nuevaImagen = cv.vconcat( (np.zeros((50,ancho,3),dtype=np.uint8),imagenSinTitulo))
+        imagenConTitulo = cv.putText(nuevaImagen, name, (int(0.25*ancho), 30), cv.FONT_HERSHEY_COMPLEX, 1, 300) # inspiration came from https://stackoverflow.com/questions/42420470/opencv-subplots-images-with-titles-and-space-around-borders#42421245
         imagenes.append(imagenConTitulo)
     pintaVarias(imagenes)
         
