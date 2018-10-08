@@ -1,0 +1,9 @@
+import core
+import numpy as np
+import cv2 as cv
+
+if __name__=="__main__":
+    im = leeImagen("../test/hm.jpg", cv.IMREAD_COLOR)
+    im2 = calculateGaussian(im , 3, 0.75)
+    im3 = calculateGaussian(im, 7, 2)
+    v = np.arr
