@@ -9,9 +9,17 @@ if __name__=="__main__":
     # vim = np.array([im, im2, im3])
     # core.pintaVarias(vim)
 
-    imL = core.leeImagen("../../dmdlarge.jpg", cv.IMREAD_COLOR)
-    imS = core.leeImagen("../../dmsmall.png", cv.IMREAD_COLOR)
+    imL = core.leeImagen("../../dmdlarge.jpg", cv.IMREAD_GRAYSCALE)
+    imS = core.leeImagen("../../dmsmall.png", cv.IMREAD_GRAYSCALE)
 
-    core.showGaussianPyr(imL)
+    functions = [core.calculateConvSeparableMask, core.calculateConvFirstDerivativeIm, core.calculateConvSecondDerivativeIm ]
 
-    core.showLaplacianPyr(imS)
+    imSmod = core.calculateConvolutionLDG(imL, 7, 5)
+    core.pintaI(imSmod)
+    
+    for f in functions:
+        imSmod = f(imL,7)
+        core.pintaI(imSmod)
+
+    
+    

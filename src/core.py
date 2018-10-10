@@ -196,12 +196,13 @@ def calculateConvolutionLDG(im,size,sigma,border=cv.BORDER_DEFAULT):
     return cv.Laplacian(im2, -1, borderType=cv.BORDER_DEFAULT)
 
 def calculateConvSeparableMask(im,size):
+    sigma = 5
     ker = cv.getGaussianKernel(size, sigma)
     return cv.sepFilter2D(im,-1,ker,ker)
 
-# def calculateConvFirstDerivativeIm(im,size):
-#     kerX, kerY = cv.getDerivKernels(1,0,size)
-#     return (im, -1, kerX, kerY, borderType=cv.BORDER_REFLECT)
+def calculateConvFirstDerivativeIm(im,size):
+    kerX, kerY = cv.getDerivKernels(1,0,size)
+    return cv.sepFilter2D(im, -1, kerX, kerY)
 
 def calculateConvSecondDerivativeIm(im, size):
     kerX, kerY = cv.getDerivKernels(2,0,size)
@@ -220,3 +221,7 @@ def showGaussianPyr(im,border=cv.BORDER_DEFAULT):
     
 def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
     showFourLevelPyr(im,cv.pyrUp,border)
+
+def showHybridIm(im1,im2):
+    im1mod = calculateGaussianMask(im1, 5, 2)
+    # im2mod =                    
