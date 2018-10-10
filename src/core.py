@@ -187,3 +187,36 @@ def calculateGaussian(im, ksize, shape):
 
     """
     return cv.GaussianBlur(im, (ksize,ksize), shape)
+
+def obtainMasks(size):
+    return cv.getDerivKernels(1,1,size)
+
+def calculateConvolutionLDG(im,size,sigma,border=cv.BORDER_DEFAULT):
+    im2 = cv.GaussianBlur(im,(size,size),sigma)
+    return cv.Laplacian(im2, -1, borderType=cv.BORDER_DEFAULT)
+
+def calculateConvSeparableMask(im,size):
+    ker = cv.getGaussianKernel(size, sigma)
+    return cv.sepFilter2D(im,-1,ker,ker)
+
+# def calculateConvFirstDerivativeIm(im,size):
+#     kerX, kerY = cv.getDerivKernels(1,0,size)
+#     return (im, -1, kerX, kerY, borderType=cv.BORDER_REFLECT)
+
+def calculateConvSecondDerivativeIm(im, size):
+    kerX, kerY = cv.getDerivKernels(2,0,size)
+    return cv.sepFilter2D(im,-1,kerX,kerY)
+
+def showFourLevelPyr(im,pyrFunct,border):
+    vim = [im]
+    newim = im
+    for i in range(4):
+        newim = pyrFunct(newim,borderType=border)
+        vim.append(newim)
+    pintaVarias(vim)
+
+def showGaussianPyr(im,border=cv.BORDER_DEFAULT):
+    showFourLevelPyr(im,cv.pyrDown,border)
+    
+def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
+    showFourLevelPyr(im,cv.pyrUp,border)
