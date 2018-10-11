@@ -4,7 +4,7 @@ the year 2018/19.
 """
 import numpy as np
 import cv2 as cv
-# import pdb
+import pdb
 
 def leeImagen(filename, flagColor):
     """ Reads an image from a file and shows it in grey or color.
@@ -56,9 +56,8 @@ def transformarColor(vim):
     """
     ret =[]
     for im in vim:
-        alto, ancho, profundo = im.shape
-        if profundo != 3:
-            mat = cv.cvtColor(im,COLOR_RGB2Luv)
+        if len(im.shape) != 3:
+            mat = cv.cvtColor(im,cv.COLOR_GRAY2RGB)
             ret.append(mat)
         else:
             ret.append(np.copy(im))
@@ -123,7 +122,7 @@ def pintaVarias(vim):
     cv.namedWindow('varias', cv.WINDOW_AUTOSIZE)
     vimColor = vim
     vimColor = transformarColor(vim)
-    altoMaximo = getAltoMaximo(vim)
+    altoMaximo = getAltoMaximo(vimColor)
     vimColor = rellenaPorDebajo(vimColor,altoMaximo)
     
     imAImprimir = vimColor[0]
@@ -223,5 +222,17 @@ def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
     showFourLevelPyr(im,cv.pyrUp,border)
 
 def showHybridIm(im1,im2):
-    im1mod = calculateGaussianMask(im1, 5, 2)
-    # im2mod =                    
+    im1blurr = calculateGaussian(im1, 11, 10)
+    im2blurr = calculateGaussian(im2, 5, 1)
+    im2detail = im2 - im2blurr
+    #im2detail = calculateConvolutionLDG(im2,7,5)
+    im2sharp = im2 + im2detail
+
+    pdb.set_trace()
+
+    #hybridIm = 0.5*im1blurr + 0.5*im2sharp
+    
+    vim = [im1blurr, im2sharp]#, hybridIm]
+
+    pintaVarias(vim)
+    
