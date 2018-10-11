@@ -12,6 +12,9 @@ if __name__=="__main__":
     imL = core.leeImagen("../../dmdlarge.jpg", cv.IMREAD_GRAYSCALE)
     imS = core.leeImagen("../../dmsmall.png", cv.IMREAD_GRAYSCALE)
 
+    guisqui = core.leeImagen("../../wsk.jpg", cv.IMREAD_GRAYSCALE)
+    bala = core.leeImagen("../../bala.png", cv.IMREAD_GRAYSCALE)
+    
     functions = [core.calculateConvSeparableMask, core.calculateConvFirstDerivativeIm, core.calculateConvSecondDerivativeIm ]
 
     imSmod = core.calculateConvolutionLDG(imL, 7, 5)
@@ -21,5 +24,6 @@ if __name__=="__main__":
         imSmod = f(imL,7)
         core.pintaI(imSmod)
 
+    core.showHybridIm(guisqui,bala)
     
     
