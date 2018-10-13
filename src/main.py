@@ -1,29 +1,81 @@
-import core
+import core                     # <- Functions are implemented here
 import numpy as np
 import cv2 as cv
 
 if __name__=="__main__":
-    # im = core.leeImagen("../test/hm.jpg", cv.IMREAD_COLOR)
-    # im2 = core.calculateGaussian(im , 7, 7)
-    # im3 = core.calculateGaussian(im, 9, 20)
-    # vim = np.array([im, im2, im3])
-    # core.pintaVarias(vim)
+    # 1st exercise
+    im1 = core.leeImagen("../images/im1.jpg",cv.IMREAD_COLOR)
 
-    imL = core.leeImagen("../../dmdlarge.jpg", cv.IMREAD_GRAYSCALE)
-    imS = core.leeImagen("../../dmsmall.png", cv.IMREAD_GRAYSCALE)
+    # a) Showing convolution using a Gaussian 2D mask
+    im1Gauss = core.calculateGaussian(im1, 11, 5)
 
-    guisqui = core.leeImagen("../../wsk.jpg", cv.IMREAD_GRAYSCALE)
-    bala = core.leeImagen("../../bala.png", cv.IMREAD_GRAYSCALE)
-    
-    functions = [core.calculateConvSeparableMask, core.calculateConvFirstDerivativeIm, core.calculateConvSecondDerivativeIm ]
+    core.pintaI(im1)            # Shows original image
+    core.pintaI(im1Gauss)       # Shows image after Gaussian conv.
 
-    imSmod = core.calculateConvolutionLDG(imL, 7, 5)
-    core.pintaI(imSmod)
-    
-    for f in functions:
-        imSmod = f(imL,7)
-        core.pintaI(imSmod)
+    # b) Obtaining masks and representing them as arrays
+    mask1 = core.obtainMasks(3) # Mask with length 3
+    mask2 = core.obtainMasks(5) # Mask with length 5
+    mask3 = core.obtainMasks(7) # Mask with length 7
 
-    core.showHybridIm(guisqui,bala)
+    masks = [mask1, mask2, mask3]
+
+    for i in np.arange(len(masks)) :
+        print("Mascara numero " + str(i+1) + ": ")
+        print(masks[i])         # Showing masks in terminal
+        
+    # c) Using laplacian of a Gaussian
+
+    # L-G with sigma = 1 border aaaaaa|abcdefgh|hhhhhhh
+    imLG1B1 = core.calculateConvolutionLDG(im1, 3, 1, cv.BORDER_REPLICATE)
+    core.pintaI(imLG1B1)
     
+    # L-G with sigma = 1 border fedcba|abcdefgh|hgfedcb
+    imLG1B2 = core.calculateConvolutionLDG(im1, 3, 1, cv.BORDER_REFLECT)
+    core.pintaI(imLG1B2)
+
+    # L-G with sigma = 3 border aaaaaa|abcdefgh|hhhhhhh
+    imLG3B1 = core.calculateConvolutionLDG(im1, 5, 3, cv.BORDER_REPLICATE)
+    core.pintaI(imLG3B1)
+
+    # L-G with sigma = 3 border fedcba|abcdefgh|hgfedcb
+    imLG3B2 = core.calculateConvolutionLDG(im1, 5, 3, cv.BORDER_REFLECT)
+    core.pintaI(imLG3B2)
+
+    # 2nd exercise
+    im2 = core.leeImagen("../images/im2.jpg",cv.IMREAD_GRAYSCALE)
+    core.pintaI(im2)
+
+    # a) Calculate convolution with a separable mask
+    # Gaussian with size = 3, sigma = 1, border fedcba|abcdefgh|hgfedcb
+    imSep = core.calculateConvSeparableMask(im2, 3, 1, cv.BORDER_REFLECT)
+    core.pintaI(imSep)
+
+    # b) Calculate convolution with a 2D derivative mask
+    # First der. size = 3, border iiiiiii|abcdefgh|iiiiiii i=0
+    im1Der = core.calculateConvFirstDerivative(im2, 3, cv.BORDER_CONSTANT)
+    core.pintaI(im1Der)
     
+    # c) Calculating 2D convolution with 2D 2nd derivative mask
+    # Second deriv size = 3 , border DEFAULT
+    im2Der = core.calculateConvSecondDerivative(im2, 3)
+    core.pintaI(im2Der)
+
+    # d) Showing a Gaussian pyramid
+    core.showGaussianPyr(im2)
+
+    # Using borders
+    core.showGaussianPyr(im2,cv.BORDER_DEFAULT)
+        
+    # e) Showing a Laplacian pyramid
+    core.showLaplacianPyr(im2)
+
+    # Using borders
+    core.showLaplacianPyr(im2,cv.BORDER_DEFAULT)
+
+    # 3rd exercice
+    im3 = core.leeImagen("../images/im3.jpg",cv.IMREAD_GRAYSCALE)
+    im4 = core.leeImagen("../images/im4.jpg",cv.IMREAD_GRAYSCALE)
+
+    # a) Shows three images high, low and hybrid
+    core.showHybridIm(im3,im4) 
+
