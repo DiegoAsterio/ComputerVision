@@ -4,7 +4,7 @@ the year 2018/19.
 """
 import numpy as np
 import cv2 as cv
-import pdb
+#import pdb
 
 def leeImagen(filename, flagColor):
     """ Reads an image from a file and shows it in grey or color.
@@ -153,7 +153,6 @@ def modI(im, vpix):
     """
     for y, x in vpix:
         im[y,x,0] = 0           
-
 def pintaVentana(vfilename):
     """ Various images are shown in the same window with their titles
     
@@ -161,7 +160,7 @@ def pintaVentana(vfilename):
     ----------
     vfilename : array_like
         An array of names. Each image is represented as a matrix.
-    
+n    
     """
     imagenes = []
     for name in vfilename:
@@ -184,55 +183,197 @@ def calculateGaussian(im, ksize, shape):
     shape : double
         Variance of the gaussian distribution
 
+    Returns
+    -------
+    type
+        Opencv matrix comes from numpy
+    
+
     """
     return cv.GaussianBlur(im, (ksize,ksize), shape)
 
 def obtainMasks(size):
+    """ A function that returns 1D masks to calculate derivative masks 2D convolution
+    
+    Parameters
+    ----------
+    size : int
+        An int representing the size of the mask
+
+    Returns
+    -------
+    type
+        Numpy array
+    
+    """
     return cv.getDerivKernels(1,1,size)
 
 def calculateConvolutionLDG(im,size,sigma,border=cv.BORDER_DEFAULT):
-    im2 = cv.GaussianBlur(im,(size,size),sigma)
-    return cv.Laplacian(im2, -1, borderType=cv.BORDER_DEFAULT)
+    """ Calculates 2D convolution with a Laplacian-of-Gaussian operator
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
 
-def calculateConvSeparableMask(im,size):
-    sigma = 5
+    size : int
+        Size of the mask that will be applied to the image
+
+    sigma : float
+        Variance of the gaussian distribution
+
+    border : flag
+        Flag indicating the type of border used when applying the filter by default cv.BORDER_DEFAULT is used
+
+    Returns
+    -------
+    type
+        Opencv matrix comes from numpy
+    
+    """
+    return cv.Laplacian(im, -1, ksize=size, scale=sigma, borderType=border)
+
+def calculateConvSeparableMask(im,size,sigma,border=cv.BORDER_DEFAULT):
+    """ Calculates 2D convolution with a separable mask
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
+
+    size : int
+        Size of the mask that will be applied to the image
+
+    sigma : float
+        Variance of the gaussian distribution
+
+    border : flag
+        OpenCV flag for setting the border
+
+    Returns
+    -------
+    type
+        Opencv matrix comes from numpy
+    
+    """
     ker = cv.getGaussianKernel(size, sigma)
-    return cv.sepFilter2D(im,-1,ker,ker)
+    return cv.sepFilter2D(im,-1,ker,ker,borderType=border)
 
-def calculateConvFirstDerivativeIm(im,size):
+def calculateConvFirstDerivative(im,size, border=cv.BORDER_DEFAULT):
+    """ Calculates 2D convolution with a mask of first derivatives
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
+
+    size : int
+        Size of the mask that will be applied to the image
+
+    Returns
+    -------
+    type
+        Opencv matrix comes from numpy
+    
+    """
     kerX, kerY = cv.getDerivKernels(1,0,size)
-    return cv.sepFilter2D(im, -1, kerX, kerY)
+    matrix = kerY*np.transpose(kerX)
+    return cv.filter2D(im, -1, matrix, borderType=border) # Multiplicar dos vectores y usar filter2D
 
-def calculateConvSecondDerivativeIm(im, size):
+def calculateConvSecondDerivative(im, size,border=cv.BORDER_DEFAULT):
+    """ Calculates 2D convolution with a mask of second derivatives
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
+
+    size : int
+        Size of the mask that will be applied to the image
+
+    Returns
+    -------
+    type
+        Opencv matrix comes from numpy
+    
+    """
     kerX, kerY = cv.getDerivKernels(2,0,size)
-    return cv.sepFilter2D(im,-1,kerX,kerY)
+    matrix = kerY*np.transpose(kerX)
+    return cv.filter2D(im,-1,matrix, borderType=border)
 
-def showFourLevelPyr(im,pyrFunct,border):
+def showNLevelPyr(im,n,pyrFunct,border):
+    """ Shows a pyramid of the same levels as one wants
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
+
+    n : int
+        Number of levels for the pyramid
+
+    pyrFunct : function_like
+        A function that given an image returns the next image in
+    the piramid.
+
+    border : flag
+        OpenCV flag for setting the border
+
+    """
     vim = [im]
     newim = im
-    for i in range(4):
+    for i in range(n):
         newim = pyrFunct(newim,borderType=border)
         vim.append(newim)
     pintaVarias(vim)
 
 def showGaussianPyr(im,border=cv.BORDER_DEFAULT):
-    showFourLevelPyr(im,cv.pyrDown,border)
+    """ Shows a Gaussian pyramid of four levels
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
+
+    border : flag
+        OpenCV flag for setting the border
+
+    """
+    showNLevelPyr(im,4,cv.pyrDown,border)
     
 def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
-    showFourLevelPyr(im,cv.pyrUp,border)
+    """ Shows a Laplacian pyramid of four levels
+    
+    Parameters
+    ----------
+    im : matrix_like
+        An image in OpenCV format
+
+    border : flag
+        OpenCV flag for setting the border
+
+    """
+    showNLevelPyr(im,4,cv.pyrUp,border)
 
 def showHybridIm(im1,im2):
-    im1blurr = calculateGaussian(im1, 11, 10)
-    im2blurr = calculateGaussian(im2, 5, 1)
-    im2detail = im2 - im2blurr
-    #im2detail = calculateConvolutionLDG(im2,7,5)
-    im2sharp = im2 + im2detail
-
-    pdb.set_trace()
-
-    #hybridIm = 0.5*im1blurr + 0.5*im2sharp
+    """ Shows a hybrid image using two images
     
-    vim = [im1blurr, im2sharp]#, hybridIm]
+    Parameters
+    ----------
+    im1 : matrix_like
+        An image in OpenCV format
+
+    im2 : matrix_like
+        An image in OpenCV format
+
+    """
+    im1blurr = calculateGaussian(im1, 11, 10)
+    im2blurr = calculateGaussian(im2, 7, 5)
+    im2detail = im2 - im2blurr
+
+    hybridIm = im1blurr + im2detail
+
+    vim = [im1blurr, im2detail, hybridIm]
 
     pintaVarias(vim)
     
