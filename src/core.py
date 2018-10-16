@@ -356,7 +356,7 @@ def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
     """
     vim = nLevelPyr(im,4,cv.pyrDown,border)
     for i in range(len(vim))[1:-1]:
-        nextLevel = cv.pyrUp(vim[i+1],dstsize=vim[i].shape[::-1],borderType=border)
+        nextLevel = cv.pyrUp(vim[i+1],dstsize=vim[i].shape[::-1])
         vim[i] = cv.subtract(vim[i],nextLevel)
 
     pintaVarias(vim[1:])
