@@ -12,8 +12,7 @@ Para ilustrar  de funciones Gaussianas utilizaremos la
 [[im1][siguiente imagen]]:
 
 #+CAPTION: Imagen utilizada con funciones Gaussianas
-#+NAME: im1
-
+#+NAME:im1
 [[./img/im1-orig.png]]
 
 *** Convolucion
@@ -26,31 +25,55 @@ tamano de mascara pasa a ser 7 y sigma 5 con lo que obtenemos [[im1G75][esta ima
 
 #+CAPTION: Convolucion gaussiana con tamano 3 y sigma 1
 #+NAME: im1G31
-
 [[./img/im1-G31.png]]
 
 #+CAPTION: Convolucion gaussiana con tamano 7 y sigma 5
 #+NAME: im1G75
-
-[[./img/im1-G75]]
+[[./img/im1-G75.png]]
 
 *** TODO Interpretar Kernels de una mascara de derivadas
 
+Utilizando la funcion getDerivKernels hemos obtenidos los ker de 
+derivada para las mascaras. Como se puede observar en [[kernels][esta imagen]],
+los kernels representan una media ponderada de los valores aproximados
+de las derivadas (diferencias finitas) en los puntos cercanos al punto en cuestion.
+
 #+CAPTION: Kernels para la mascara de derivada con distinto tamano y valores de sigma
 #+NAME: kernels
-
 [[./img/kernels.png]]
+
+Podemos ver como para dx=1, dy=0 y longitud 3, la matriz va a ser la 
+matriz
+\[
+kerY^t kerX = \begin{matrix} -1 && 0 && 1 \\ -2 && 0 && 2 \\ -1 && 0 && 1 \end{matrix}
+\]
+Es decir el calculo de la derivada en un punto va a coincidir con una
+media ponderada de los valores de las diferencias divididas $f(x+1) - f(x-1)$.
+
+Si aumentamos el tamano de la mascara las diferencias divididas
+pasan a ser $f(x+2) + 2f(x+1) - 2f(x-1) - f(x-2)$ y la ponderacion 
+varia dando mas importancia a las fila central (se multiplica por 6).
+
+Se puede ver que si dx=0, dy=1 entonces se tiene que kerX pasa a ser
+kerY y viceversa.
+
+Si se deriva dos veces esta asuncio se hace dos veces es decir se tiene
+que $f''(x) \approx f'(x+1) - f'(x-1) \approx f(x+1) - f(x) - (f(x) - f(x-1))$
+en cada fila y cada fila tiene un peso dependiedo de lo cerca que este
+del centro.
+
+Al aumentar el tamano de la mascara a 5 se tiene
 
 *** Laplaciana-de-Gaussiana
 
 Utilizando la funcion Laplacian de OpenCV 3.4.1 convolucionamos 
 un operador laplaciano de gaussiano para distintos valores de 
-sigma y tipos de borde. En el [[im1LDG1][primer caso]] utilizamos sigma 1 y 
+sigma y tipos de borde. En el [[im1LDG1R][primer caso]] utilizamos sigma 1 y 
 este tipo de borde:
 \[
 aaaaaa|abcdefgh|hhhhhhh
 \]
-En el [[im1LDG1E][segundo caso]] utilizamos sigma 1 y un borde reflejado:
+En el [[im1LDG1E][segundo caso]]utilizamos sigma 1 y un borde reflejado:
 \[
 fedcba|abcdefgh|hgfedcb
 \]
@@ -60,25 +83,136 @@ como en dos.
 
 #+CAPTION: sigma = 1, borde aaaaaa|abcdefgh|hhhhhhh
 #+NAME: im1LDG1R
-
-[[./img/im1-LDG1R]]
+[[./img/im1-LDG1R.png]]
 
 #+CAPTION: sigma = 1, borde fedcba|abcdefgh|hgfedcb
 #+NAME: im1LDG1E
-
-[[./img/im1-LDG1E]]
+[[./img/im1-LDG1E.png]]
 
 #+CAPTION: sigma = 3, borde aaaaaa|abcdefgh|hhhhhhh
 #+NAME: im1LDG3R
-
-[[./img/im1-LDG3R]]
+[[./img/im1-LDG3R.png]]
 
 #+CAPTION: sigma = 3, borde fedcba|abcdefgh|hgfedcb
 #+NAME: im1LDG3E
+[[./img/im1-LDG3E.png]]
 
-[[./img/im1-LDG3E]]
+A primera vista es dificil observar la diferencia entre usar varios
+bordes. Sin embargo, haciendo zoom en la imagen logramos encontar diferencias.
+
+Para sigma=1 tenemos que las diferencias entre bordes son [[bordesSigma1][estas]].
+
+#+CAPTION: Diferencia entre bordes para sigma = 1
+#+NAME: bordesSigma1
+[[./img/bordesSigma1.png]]
+
+Para sigma=3 tenemos que las diferencias entre bordes son [[bordesSigma3][estas]].
+
+#+CAPTION: Diferencia entre bordes para sigma = 3
+#+NAME: bordesSigma3
+[[./img/bordesSigma3.png]]
+
+Las diferencias entre los bordes para el sigma=3 son mas claras.
 
 ** Mascaras separables y piramides
 
+Para ilustrar la convolucion utilizando mascaras vamos a usar 
+[[im2][esta imagen]].
 
+#+CAPTION: Imagen utilizada para ilustrar el uso de mascaras
+#+NAME: im2
+[[./img/im2-orig.png]]
 
+*** Convolucion con mascara separable
+
+En primer lugar usamos el nucleo de un gaussiano para aplicar una mascar
+gaussiana. El resultado es [[im2-sep][este]]
+
+#+CAPTION: Imagen obtenida tras aplicar una mascara separable
+#+NAME: im2-sep
+[[./img/im2-sep.png]]
+
+*** Convolucion con una mascara de derivadas de primera derivada
+
+Tras multiplicar los nucleos de una mascara de primera derivada separable 
+utilizamos la funcion filter2D de OpenCV para obtener la [[im2-der1][siguiente imagen]].
+
+#+CAPTION: Imagen obtenida tras aplicar una mascara de primera derivada
+#+NAME: im2-der1
+[[./img/im2-der1.png]]
+
+*** Convolucion con una mascara de derivadas de segunda derivada
+
+Tras multiplicar los nucleos de una mascara de primera derivada separable 
+utilizamos la funcion filter2D de OpenCV para obtener la [[im2-der2][siguiente imagen]]
+
+#+CAPTION: Imagen obtenida tras aplicar una mascara de primera derivada
+#+NAME: im2-der2
+[[./img/im2-der2.png]]
+
+*** Construccion de una piramide Gaussiana
+
+Con la funcion que hemos desarrollado en la practica construimos una
+[[gaussPir][piramide Gaussiana]]
+
+#+CAPTION: Piramide gaussiana
+#+NAME: gaussPir
+[[./img/gaussPir.png]]
+
+La funcion admite un parametro borde y en este caso hemos construido la 
+[[gaussPirBor][piramide con borde]]:
+
+\[
+fedcba|abcdefgh|hgfedcb
+\]
+
+#+CAPTION: Piramide gaussiana usando borde fedcba|abcdefgh|hgfedcb
+#+NAME: gaussPirBor
+[[./img/gaussPirBor.png]]
+
+*** Construccion de una piramide laplaciana
+
+Con la funcion que hemos desarrollado en la practica construimos una
+[[laplPir][piramide laplaciana]]
+
+#+CAPTION: Piramide laplaciana
+#+NAME: laplPir
+[[./img/laplPir.png]]
+
+La funcion admite un parametro borde y en este caso hemos construido la 
+[[laplPirBor][piramide con borde]]:
+
+\[
+aaaaaaa|abcdefgh|hhhhhhh
+\]
+
+#+CAPTION: Piramide laplaciana usando borde aaaaaaa|abcdefgh|hhhhhhh
+#+NAME: laplPirBor
+[[./img/laplPirBor.png]]
+
+** Imagenes hibridas
+
+Vamos a construir imagenes hibridas. En [[einstMarylin][primer lugar]] tomamos las imagenes de 
+Marylin Monroe y Albert Einstein. 
+ 
+#+CAPTION: Imagen hibrida de Marylin Monroe y Albert Einstein se utiliza size=9,sigma=6,size=13,sigma=8
+#+NAME: einstMarylin
+[[./img/einstMarylin.png]]
+
+En [[fishSub][segundo lugar]] tomamos las imagenes del submarino y el pescado.
+
+#+CAPTION: Imagen hibrida de un submarino y un pescado se utiliza sigma size=11,sigma=9,size=35,sigma=33
+#+NAME: fishSub
+[[./img/fishSub.png]]
+
+En [[ dogCat][tercer lugar]] tomamos las imagenes del perro y el gato.
+
+#+CAPTION: Imagen hibrida de un submarino y un pescado se utiliza sigma size=11,sigma=9,size=35,sigma=33
+#+NAME: dogCat
+[[./img/dogCat.png]]
+
+En [[dogCat][cuarto lugar]] tomamos las images de la moto y la bici
+
+#+CAPTION: Imagen hibrida de la moto y la bici se utiliza sigma size=5,sigma=3,size=5,sigma=3
+#+NAME: motoBike
+[[./img/motoBike.png]]
