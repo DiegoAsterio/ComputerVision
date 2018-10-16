@@ -4,26 +4,26 @@ import cv2 as cv
 
 if __name__=="__main__":
     # 1st exercise
-    im1 = core.leeImagen("../images/im1.jpg",cv.IMREAD_COLOR)
+    im1 = core.leeImagen("../images/marilyn.bmp",cv.IMREAD_COLOR)
 
     # a) Showing convolution using a Gaussian 2D mask
-    im1Gauss = core.calculateGaussian(im1, 11, 5)
+    im1Gauss = core.calculateGaussian(im1, 3, 1)
+    im2Gauss = core.calculateGaussian(im1, 7, 5)
 
     core.pintaI(im1)            # Shows original image
-    core.pintaI(im1Gauss)       # Shows image after Gaussian conv.
+    core.pintaI(im1Gauss)       # Shows image after Gaussian conv. size=3, sigma=1
+    core.pintaI(im2Gauss)       # Shows image with size=5, sigma=3
 
     # b) Obtaining masks and representing them as arrays
-    mask1 = core.obtainMasks(3) # Mask with length 3
-    mask2 = core.obtainMasks(5) # Mask with length 5
-    mask3 = core.obtainMasks(7) # Mask with length 7
+    parameters = [(1,0,3), (1,0,5), (2,0,3), (2,0,3), (1,1,3), (1,1,5), (2,1,3), (2,1,5), (2,2,3), (2,2,5) ]
 
-    masks = [mask1, mask2, mask3]
-
-    for i in np.arange(len(masks)) :
-        print("Mascara numero " + str(i+1) + ": ")
-        print(masks[i])         # Showing masks in terminal
-        
-    # c) Using laplacian of a Gaussian
+    for dx, dy, size in parameters:
+        kx, ky = core.obtainMasks(dx,dy,size)
+        kx.resize(size)
+        ky.resize(size)
+        print("dx={:d}, dy={:d}, kerX=[{:s}], kerY=[{:s}]".format(dx,dy,", ".join(map(str,kx)),", ".join(map(str,ky))))
+    
+     # c) Using laplacian of a Gaussian
 
     # L-G with sigma = 1 border aaaaaa|abcdefgh|hhhhhhh
     imLG1B1 = core.calculateConvolutionLDG(im1, 3, 1, cv.BORDER_REPLICATE)
@@ -42,7 +42,7 @@ if __name__=="__main__":
     core.pintaI(imLG3B2)
 
     # 2nd exercise
-    im2 = core.leeImagen("../images/im2.jpg",cv.IMREAD_GRAYSCALE)
+    im2 = core.leeImagen("../images/bicycle.bmp",cv.IMREAD_GRAYSCALE)
     core.pintaI(im2)
 
     # a) Calculate convolution with a separable mask
@@ -70,12 +70,31 @@ if __name__=="__main__":
     core.showLaplacianPyr(im2)
 
     # Using borders
-    core.showLaplacianPyr(im2,cv.BORDER_DEFAULT)
+    #core.showLaplacianPyr(im2,cv.BORDER_DEFAULT)
 
     # 3rd exercice
-    im3 = core.leeImagen("../images/im3.jpg",cv.IMREAD_GRAYSCALE)
-    im4 = core.leeImagen("../images/im4.jpg",cv.IMREAD_GRAYSCALE)
+    im3 = core.leeImagen("../images/plane.bmp",cv.IMREAD_GRAYSCALE)
+    im4 = core.leeImagen("../images/bird.bmp",cv.IMREAD_GRAYSCALE)
 
     # a) Shows three images high, low and hybrid
-    core.showHybridIm(im3,im4) 
+    core.showHybridIm(11,5,im3,7,5,im4) 
 
+    im5 = core.leeImagen("../images/dog.bmp",cv.IMREAD_GRAYSCALE)
+    im6 = core.leeImagen("../images/cat.bmp",cv.IMREAD_GRAYSCALE)
+
+    core.showHybridIm(15,10,im5,35,33,im6)
+
+    im7 = core.leeImagen("../images/submarine.bmp",cv.IMREAD_GRAYSCALE)
+    im8 = core.leeImagen("../images/fish.bmp", cv.IMREAD_GRAYSCALE)
+
+    core.showHybridIm(11,9,im7,7,5,im8)
+                        
+    im9 = core.leeImagen("../images/motorcycle.bmp",cv.IMREAD_GRAYSCALE)
+    im10 = core.leeImagen("../images/bicycle.bmp", cv.IMREAD_GRAYSCALE)
+
+    core.showHybridIm(5,3,im9,5,3,im10)
+
+    im11 = core.leeImagen("../images/marilyn.bmp", cv.IMREAD_GRAYSCALE)
+    im12 = core.leeImagen("../images/einstein.bmp", cv.IMREAD_GRAYSCALE)
+
+    core.showHybridIm(9,6,im12,13,8,im11)
