@@ -1,0 +1,84 @@
+#+AUTHOR: Diego Asterio de Zaballa
+#+DATE: 15 de Octubre 2018
+#+TITLE: Vision por Computador
+
+\newpage
+
+* Filtrado y Muestreo
+
+** Funciones Gaussianas
+
+Para ilustrar  de funciones Gaussianas utilizaremos la 
+[[im1][siguiente imagen]]:
+
+#+CAPTION: Imagen utilizada con funciones Gaussianas
+#+NAME: im1
+
+[[./img/im1-orig.png]]
+
+*** Convolucion
+
+Ayudandonos de OpenCV podemos calcular la convolucion de una imagen
+utilizando una mascara gaussiana. En primer lugar utilizaremos un
+tamano de mascara 3 y sigma 1, para obtener el [[im1G31][siguiente resultado]].
+En una segunda aplicacion del algoritmo cambiamos los valores. El 
+tamano de mascara pasa a ser 7 y sigma 5 con lo que obtenemos [[im1G75][esta imagen]].
+
+#+CAPTION: Convolucion gaussiana con tamano 3 y sigma 1
+#+NAME: im1G31
+
+[[./img/im1-G31.png]]
+
+#+CAPTION: Convolucion gaussiana con tamano 7 y sigma 5
+#+NAME: im1G75
+
+[[./img/im1-G75]]
+
+*** TODO Interpretar Kernels de una mascara de derivadas
+
+#+CAPTION: Kernels para la mascara de derivada con distinto tamano y valores de sigma
+#+NAME: kernels
+
+[[./img/kernels.png]]
+
+*** Laplaciana-de-Gaussiana
+
+Utilizando la funcion Laplacian de OpenCV 3.4.1 convolucionamos 
+un operador laplaciano de gaussiano para distintos valores de 
+sigma y tipos de borde. En el [[im1LDG1][primer caso]] utilizamos sigma 1 y 
+este tipo de borde:
+\[
+aaaaaa|abcdefgh|hhhhhhh
+\]
+En el [[im1LDG1E][segundo caso]] utilizamos sigma 1 y un borde reflejado:
+\[
+fedcba|abcdefgh|hgfedcb
+\]
+En el [[im1LDG3R][tercer caso]] utilizamos sigma 3 y un borde como en el primer caso.
+Y por ultimo en el [[im1LDG3E][cuarto caso]] utilizamos sigam 3 y un borde reflejado
+como en dos.
+
+#+CAPTION: sigma = 1, borde aaaaaa|abcdefgh|hhhhhhh
+#+NAME: im1LDG1R
+
+[[./img/im1-LDG1R]]
+
+#+CAPTION: sigma = 1, borde fedcba|abcdefgh|hgfedcb
+#+NAME: im1LDG1E
+
+[[./img/im1-LDG1E]]
+
+#+CAPTION: sigma = 3, borde aaaaaa|abcdefgh|hhhhhhh
+#+NAME: im1LDG3R
+
+[[./img/im1-LDG3R]]
+
+#+CAPTION: sigma = 3, borde fedcba|abcdefgh|hgfedcb
+#+NAME: im1LDG3E
+
+[[./img/im1-LDG3E]]
+
+** Mascaras separables y piramides
+
+
+
