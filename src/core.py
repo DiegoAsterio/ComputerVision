@@ -152,7 +152,7 @@ def modI(im, vpix):
     
     """
     for y, x in vpix:
-        im[y,x,0] = 0           
+        im[y][x] = 0
 def pintaVentana(vfilename):
     """ Various images are shown in the same window with their titles
     
@@ -192,7 +192,7 @@ def calculateGaussian(im, ksize, shape):
     """
     return cv.GaussianBlur(im, (ksize,ksize), shape)
 
-def obtainMasks(size):
+def obtainMasks(dx,dy,size):
     """ A function that returns 1D masks to calculate derivative masks 2D convolution
     
     Parameters
@@ -206,7 +206,7 @@ def obtainMasks(size):
         Numpy array
     
     """
-    return cv.getDerivKernels(1,1,size)
+    return cv.getDerivKernels(dx,dy,size)
 
 def calculateConvolutionLDG(im,size,sigma,border=cv.BORDER_DEFAULT):
     """ Calculates 2D convolution with a Laplacian-of-Gaussian operator
@@ -301,7 +301,7 @@ def calculateConvSecondDerivative(im, size,border=cv.BORDER_DEFAULT):
     matrix = kerY*np.transpose(kerX)
     return cv.filter2D(im,-1,matrix, borderType=border)
 
-def showNLevelPyr(im,n,pyrFunct,border):
+def nLevelPyr(im,n,pyrFunct,border):
     """ Shows a pyramid of the same levels as one wants
     
     Parameters
@@ -325,7 +325,7 @@ def showNLevelPyr(im,n,pyrFunct,border):
     for i in range(n):
         newim = pyrFunct(newim,borderType=border)
         vim.append(newim)
-    pintaVarias(vim)
+    return vim
 
 def showGaussianPyr(im,border=cv.BORDER_DEFAULT):
     """ Shows a Gaussian pyramid of four levels
@@ -339,7 +339,8 @@ def showGaussianPyr(im,border=cv.BORDER_DEFAULT):
         OpenCV flag for setting the border
 
     """
-    showNLevelPyr(im,4,cv.pyrDown,border)
+    vim = nLevelPyr(im,4,cv.pyrDown,border)
+    pintaVarias(vim[1:])
     
 def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
     """ Shows a Laplacian pyramid of four levels
@@ -353,9 +354,15 @@ def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
         OpenCV flag for setting the border
 
     """
-    showNLevelPyr(im,4,cv.pyrUp,border)
+    vim = nLevelPyr(im,4,cv.pyrDown,border)
+    for i in range(len(vim))[1:-1]:
+        nextLevel = cv.pyrUp(vim[i+1],dstsize=vim[i].shape[::-1],borderType=border)
+        vim[i] = cv.subtract(vim[i],nextLevel)
 
-def showHybridIm(im1,im2):
+    pintaVarias(vim[1:])
+    #showestamalNLevelPyr(im,4,cv.pyrUp,border) #ESTA MAL anadir a vim en cada imagen + redimensionar(orig - blurred)
+
+def showHybridIm(size1,sigma1,im1,size2,sigma2,im2):
     """ Shows a hybrid image using two images
     
     Parameters
@@ -367,11 +374,11 @@ def showHybridIm(im1,im2):
         An image in OpenCV format
 
     """
-    im1blurr = calculateGaussian(im1, 11, 10)
-    im2blurr = calculateGaussian(im2, 7, 5)
-    im2detail = im2 - im2blurr
+    im1blurr = calculateGaussian(im1, size1, sigma1)
+    im2blurr = calculateGaussian(im2, size2, sigma2)
+    im2detail = cv.subtract(im2, im2blurr)
 
-    hybridIm = im1blurr + im2detail
+    hybridIm = cv.add(im1blurr,im2detail)
 
     vim = [im1blurr, im2detail, hybridIm]
 
