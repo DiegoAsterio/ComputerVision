@@ -4,7 +4,9 @@ the year 2018/19.
 """
 import numpy as np
 import cv2 as cv
-#import pdb
+import math
+#from functools import reduce    
+import pdb
 
 def leeImagen(filename, flagColor):
     """ Reads an image from a file and shows it in grey or color.
@@ -362,6 +364,16 @@ def showLaplacianPyr(im,border=cv.BORDER_DEFAULT):
     pintaVarias(vim[1:])
     #showestamalNLevelPyr(im,4,cv.pyrUp,border) #ESTA MAL anadir a vim en cada imagen + redimensionar(orig - blurred)
 
+def getHybridIm(size1,sigma1,im1,size2,sigma2,im2):
+    im1blurr = calculateGaussian(im1, size1, sigma1)
+    im2blurr = calculateGaussian(im2, size2, sigma2)
+    im2detail = cv.subtract(im2, im2blurr)
+
+    hybridIm = cv.add(im1blurr,im2detail)
+
+    return im1blurr, im2detail, hybridIm
+
+    
 def showHybridIm(size1,sigma1,im1,size2,sigma2,im2):
     """ Shows a hybrid image using two images
     
@@ -374,13 +386,153 @@ def showHybridIm(size1,sigma1,im1,size2,sigma2,im2):
         An image in OpenCV format
 
     """
-    im1blurr = calculateGaussian(im1, size1, sigma1)
-    im2blurr = calculateGaussian(im2, size2, sigma2)
-    im2detail = cv.subtract(im2, im2blurr)
 
-    hybridIm = cv.add(im1blurr,im2detail)
-
+    im1blurr, im2detail, hybridIm = getHybridIm(size1,sigma1,im1,size2,sigma2,im2)
+    
     vim = [im1blurr, im2detail, hybridIm]
 
     pintaVarias(vim)
+
+
+def calculate1DGaussian(sigma):
+    """ Calculates a Gaussian mask vector 
+
+    Parameters
+    ----------
+
+    sigma : int
+        Number of pixels for the standard deviation
+
+    """
+    f = lambda x : math.exp(-0.5*x*x/(sigma*sigma))
+    mask = []
+    for i in np.arange(2*math.floor(3*sigma)+1) - math.floor(3*sigma): # 99.7% de la masa de la funcion probabilidad
+        mask.append(f(i))
+
+    #pdb.set_trace()
+    suma = 0
+    for elem in mask:
+        suma = elem + suma
+
+    mask = [x/suma for x in mask]
+
+    return np.array(mask)
+
+def convoluteOverSignal(mask,signal):
+
+    K = len(mask)
+
+    N = 1
+    for elem in signal.shape:
+        N = N*elem
+    
+    signal=signal.reshape(N)
+
+    bordeIzq = [signal[i] for i in range(math.floor(K/2))]
+    bordeIzq.reverse()
+    bordeIzq = np.array(bordeIzq)
+    
+    bordeDch = [signal[-i] for i in range(math.floor(K/2))]
+    bordeDch = np.array(bordeDch)
+    
+    band = np.hstack([bordeIzq,signal,bordeDch])
+
+    maskP = np.copy(mask[::-1])
+    
+    resultado = []
+
+    for i in range(N):
+        aux = 0
+        for j in range(K):
+            aux = aux + maskP[j]*band[j+i]
+        resultado.append(aux)
+
+    return np.array(resultado)
+
+def calculateConvolution1D(mask, signal):
+    """ Calculates convolution for a vector-mask (1D) over a signal
+    we use reflected borders.
+
+    Parameters
+    ----------
+
+    mask : array_like
+        Mask in an array.
+
+    signal : array_like
+        Array that represents a signal
+
+    """
+    vectorDeColor = False    
+    if len(signal.shape) == 3:
+        vectorDeColor = True
+
+    if vectorDeColor :
+
+        layers = cv.split(signal)
+
+        layersChanged = []
+
+        for color in layers:
+            layersChanged.append(convoluteOverSignal(mask,color))
+#        pdb.set_trace()
+
+        ret = cv.merge(layersChanged)
+    else:
+        v=convoluteOverSignal(mask,signal)
+        ret = v.reshape((len(v),1))
+
+    return ret
+        
+def convoluteWithSeparableMask(kerX,kerY,im):
+    alto = None
+    ancho = None
+    profundo = None
+    if len(im.shape) == 3:
+        alto, ancho, profundo = im.shape
+    else:
+        alto, ancho = im.shape
+
+    imFilas = np.vsplit(im,alto)
+    FilasConv = np.array([ calculateConvolution1D(kerX,x) for x in imFilas])
+    
+    imConvFilas = np.hstack(FilasConv)
+
+    imColumnas = np.vsplit(imConvFilas,ancho)
+    ColumnasConv = np.array([ calculateConvolution1D(kerY,x) for x in imColumnas])
+        
+    imFinal = np.hstack(ColumnasConv)
+
+    ret = imFinal.astype('uint8')
+
+    return ret
+
+def subSample(im):
+    mask = calculate1DGaussian(1)
+    imC = convoluteWithSeparableMask(mask,mask,im)
+
+    alto = None
+    ancho = None
+    b = None
+    ret = None
+    
+    if len(imC.shape)==3:
+        alto, ancho, profundo = imC.shape
+        booleanArray = [(j%2==0)and(k%2==0) for k in range(alto) for j in range(ancho) for i in range(profundo)] #Cojo los pts.(de profundidad 3) pares en cada linea y las lineas pares
+        b = np.array(booleanArray).reshape((alto,ancho,profundo)) # Hago una matriz con la forma adeacuada para el bradcasting
+        ret = imC[b].reshape((int(alto/2)+alto%2,int(ancho/2)+ancho%2,profundo)) # El casting devuelve un vector y se transforma en una matriz
+    else:
+        alto, ancho = imC.shape
+        booleanArray = [(j%2==0)and(k%2==0) for k in range(alto) for j in range(ancho)]#Cojo los pts.(de profundidad 1) pares en cada linea y las lineas pares
+        b = np.array(booleanArray).reshape((alto,ancho)) # Hago una matriz con la forma adeacuada para el bradcasting
+        ret = imC[b].reshape((int(alto/2)+alto%2,int(ancho/2)+ancho%2)) # El casting devuelve un vector y se transforma en una matriz
+        
+    return np.copy(ret)
+
+def subSampleForFunction(im,borderType=None):
+    return subSample(im)
+
+def showMyOwnGPyr(im):
+    fiveLevels = nLevelPyr(im,5,subSampleForFunction,None)
+    pintaVarias(fiveLevels)
     
