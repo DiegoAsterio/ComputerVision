@@ -1,5 +1,5 @@
 #+AUTHOR: Diego Asterio de Zaballa
-#+DATE: 19 de Octubre 2018
+#+DATE: 20 de Octubre 2018
 #+TITLE: Vision por Computador
 
 \newpage
@@ -15,61 +15,61 @@ Para ilustrar  de funciones Gaussianas utilizaremos la
 #+NAME:im1
 [[./img/im0.png]]
 
-*** Convolucion
+*** Convolución
 
-Ayudandonos de OpenCV podemos calcular la convolucion de una imagen
+Ayudándonos de OpenCV podemos calcular la convolución de una imagen
 utilizando una mascara gaussiana. En primer lugar utilizaremos un 
 sigma 1, para obtener el [[im1G31][siguiente resultado]].
 
 
-En una segunda aplicacion del algoritmo cambiamos los valores. El 
+En una segunda aplicación del algoritmo cambiamos los valores. El 
 sigma pasa a ser 3  con lo que obtenemos [[im1G75][esta imagen]].
 
 #+CAPTION: Convolucion gaussiana con sigma 1
 #+NAME: im1G31
 [[./img/im1.png]]
 
-#+CAPTION: Convolucion gaussiana con sigma 3
+#+CAPTION: Convolución gaussiana con sigma 3
 #+NAME: im1G75
 [[./img/im2.png]]
 
 *** Interpretar Kernels de una mascara de derivadas
 
-Utilizando la funcion getDerivKernels hemos obtenidos los kernels de 
+Utilizando la función getDerivKernels hemos obtenidos los kernels de 
 derivada para las mascaras. La salida esta en [[kernels][esta imagen]]. 
 
-Para dx=1,dy=0 se tiene que por filas la mascara 1D aplicada a pixeles de valores
-parecidos se anulara y en aquellos en los que la senal crezca 
-tomara valores alto. La convolucion por columnas nos da un 
+Para dx=1,dy=0 se tiene que por filas la mascara 1D aplicada a píxeles de valores
+parecidos se anulara y en aquellos en los que la señal crezca 
+tomara valores alto. La convolución por columnas nos da un 
 suavizado de la imagen. 
 
-Podemos razonar de manera simetrica en y cuando dx=0, dy=1.
+Podemos razonar de manera simétrica en y cuando dx=0, dy=1.
 
 En el caso de dx=1, dy=1 se tiene que tanto por filas como por columnas
-en valores parecidos de la senal la mascara da cero y en valores en los que
-la senal crezca se tienen valores positivos.
+en valores parecidos de la señal la mascara da cero y en valores en los que
+la señal crezca se tienen valores positivos.
 
-En el caso de las mascara dx=2, dy=0 la convolucion por columnas da
+En el caso de las mascara dx=2, dy=0 la convolución por columnas da
 un suavizado. Sin embargo, al convolucionar por filas se tienen dos 
-comportamientos en pixeles parecidos entre si aplicar la mascara da cero 
-mientras que aplicar la mascara para pixeles que son distintos entre 
+comportamientos en píxeles parecidos entre si aplicar la mascara da cero 
+mientras que aplicar la mascara para píxeles que son distintos entre 
 si da valores positivos.
 
-Simetricamente podemos razonar sobre y para dx=0, dy=2.
+Simétricamente podemos razonar sobre y para dx=0, dy=2.
 
-Si se tienen derivadas de segundo orden para x e y tenemos que al convolucionar
+Si se tienen derivadas de segundo orden para x e y tenemos que al involucionar
 por filas y por columnas se tiene que tanto por filas como por 
-columnas la mascara da cero cuando los pixeles son parecidos y da
-positivo cuando la senal cambia.
+columnas la mascara da cero cuando los píxeles son parecidos y da
+positivo cuando la señal cambia.
 
-#+CAPTION: Kernels para la mascara de derivada con distinto tamano y valores de sigma
+#+CAPTION: Kernels para la mascara de derivada con distinto tamaño y valores de sigma
 #+NAME: kernels
 [[./img/kernels.png]]
 
 
 *** Laplaciana-de-Gaussiana
 
-Utilizando la funcion Laplacian de OpenCV 3.4.1 convolucionamos 
+Utilizando la función Laplacian de OpenCV 3.4.1 involucionamos 
 un operador laplaciano de gaussiano para distintos valores de 
 sigma y tipos de borde. En el [[im1LDG1R][primer caso]] utilizamos sigma 1 y 
 este tipo de borde:
@@ -100,10 +100,10 @@ como en dos.
 #+NAME: im1LDG3E
 [[./img/im6.png]]
 
-** Mascaras separables y piramides
+** Mascaras separables y pirámides
 
-Para ilustrar la convolucion utilizando mascaras vamos a usar 
-[[im2][esta imagen]]. Ademas como las imagenes despues de una convolucion
+Para ilustrar la convolución utilizando mascaras vamos a usar 
+[[im2][esta imagen]]. Ademas como las imágenes después de una convolución
 tiene valores que pueden ser positivos y negativos  vamos a 
 corregirlas usando el siguiente homeomorfismo $\phi : I \rightarrow [0,255]£
 
@@ -111,36 +111,36 @@ corregirlas usando el siguiente homeomorfismo $\phi : I \rightarrow [0,255]£
 t \mapsto 255\frac{t-m}{M-m}
 \]
 
-Donde $M$ es el valor maximo que se alcanza en la imagen y $m$ el 
-valor minimo.
+Donde $M$ es el valor máximo que se alcanza en la imagen y $m$ el 
+valor mínimo.
 
 #+CAPTION: Imagen utilizada para ilustrar el uso de mascaras
 #+NAME: im2
 [[./img/im7.png]]
 
-*** Convolucion con mascara separable
+*** Convolución con mascara separable
 
-En primer lugar usamos el nucleo de un gaussiano para aplicar una mascara
+En primer lugar usamos el núcleo de un gaussiano para aplicar una mascara
 gaussiana. El resultado es [[im2-sep][este]].
 
 #+CAPTION: Imagen obtenida tras aplicar una mascara separable
 #+NAME: im2-sep
 [[./img/im8.png]]
 
-*** Convolucion con una mascara de derivadas de primera derivada
+*** Convolución con una mascara de derivadas de primera derivada
 
-Tras multiplicar los nucleos de una mascara de primera derivada separable 
-utilizamos la funcion filter2D de OpenCV aplicar la convolucion.
+Tras multiplicar los núcleos de una mascara de primera derivada separable 
+utilizamos la función filter2D de OpenCV aplicar la convolución.
 
-Si derivamos respecto a x obtenemos los filos donde la senal cambia de
- oscuro a claro en la direccion x es decir la [[im2-dx][siguiente imagen]].
+Si derivamos respecto a x obtenemos los filos donde la señal cambia de
+ oscuro a claro en la dirección x es decir la [[im2-dx][siguiente imagen]].
 
 #+CAPTION: Imagen obtenida tras aplicar una mascara de primera derivada dx=1,dy=0
 #+NAME: im2-dx
 [[./img/im9.png]]
 
-Si derivamos respecto a y obtenemos los filos donde la senal cambia de
-oscuro a claro en la direccion y es decir la [[im2-dy][siguiente imagen]].
+Si derivamos respecto a y obtenemos los filos donde la señal cambia de
+oscuro a claro en la dirección y es decir la [[im2-dy][siguiente imagen]].
 
 #+CAPTION: Imagen obtenida tras aplicar una mascara de primera derivada dx=0,dy=1
 #+NAME: im2-dy
@@ -153,88 +153,88 @@ Como se observa en la [[im2-dxdy][siguiente imagen]].
 #+NAME: im2-dxdy
 [[./img/im11.png]]
 
-*** Convolucion con una mascara de derivadas de segunda derivada
+*** Convolución con una mascara de derivadas de segunda derivada
 
-Tras multiplicar los nucleos de una mascara de primera derivada separable 
-utilizamos la funcion filter2D de OpenCV para aplicar la mascara. 
+Tras multiplicar los núcleos de una mascara de primera derivada separable 
+utilizamos la función filter2D de OpenCV para aplicar la mascara. 
 
-Si se hace una derivada de segundo orden en la direccion de x se tienen 
-todos los bordes en esa direccion como observamos en la [[im2-dxdx][imagen]].
+Si se hace una derivada de segundo orden en la dirección de x se tienen 
+todos los bordes en esa dirección como observamos en la [[im2-dxdx][imagen]].
 
 #+CAPTION: Imagen obtenida tras aplicar una mascara de segunda derivada dx=2, dy=0
 #+NAME: im2-dxdx
 [[./img/im12.png]]
 
-Si se hace una derivada de segundo orden en la direccion de y se tienen 
-todos los bordes en esa direccion como observamos en la [[im2-dydy][imagen]].
+Si se hace una derivada de segundo orden en la dirección de y se tienen 
+todos los bordes en esa dirección como observamos en la [[im2-dydy][imagen]].
 
 #+CAPTION: Imagen obtenida tras aplicar una mascara de segunda derivada dx=0, dy=2
 #+NAME: im2-dydy
 [[./img/im13.png]]
 
-Si se hace en ambas direcciones se tienen todoslos bordes en las dos direcciones.
+Si se hace en ambas direcciones se tienen todos los bordes en las dos direcciones.
 Se puede ver en la [[im2-dxdxdydy][imagen]].
 
 #+CAPTION: Imagen obtenida tras aplicar una mascara de segunda derivada dx=2, dy=2
 #+NAME: im2-dxdxdydy
 [[./img/im14.png]]
 
-*** Construccion de una piramide Gaussiana
+*** Construccion de una pirámide Gaussiana
 
-Con la funcion que hemos desarrollado en la practica construimos una
+Con la función que hemos desarrollado en la practica construimos una
 [[gaussPir][piramide Gaussiana]]
 
-#+CAPTION: Piramide gaussiana
+#+CAPTION: Pirámide gaussiana
 #+NAME: gaussPir
 [[./img/im15.png]]
 
-La funcion admite un parametro borde y en este caso hemos construido la 
+La funcion admite un parámetro borde y en este caso hemos construido la 
 [[gaussPirBor][piramide con borde]]:
 
 \[
 fedcba|abcdefgh|hgfedcb
 \]
 
-#+CAPTION: Piramide gaussiana usando borde fedcba|abcdefgh|hgfedcb
+#+CAPTION: Pirámide gaussiana usando borde fedcba|abcdefgh|hgfedcb
 #+NAME: gaussPirBor
 [[./img/im16.png]]
 
-*** Construccion de una piramide laplaciana
+*** Construcción de una pirámide laplaciana
 
-Con la funcion que hemos desarrollado en la practica construimos una
-[[laplPir][piramide laplaciana]]
+Con la función que hemos desarrollado en la practica construimos una
+[[laplPir][pirámide laplaciana]]
 
-#+CAPTION: Piramide laplaciana
+#+CAPTION: Pirámide laplaciana
 #+NAME: laplPir
 [[./img/im17.png]] 
 
-La funcion admite un parametro borde y en este caso hemos construido la 
-[[laplPirBor][piramide con borde]]:
+La función admite un parametro borde y en este caso hemos construido la 
+[[laplPirBor][pirámide con borde]]:
 
 \[
 aaaaaaa|abcdefgh|hhhhhhh
 \]
 
-#+CAPTION: Piramide laplaciana usando borde aaaaaaa|abcdefgh|hhhhhhh
+#+CAPTION: Pirámide laplaciana usando borde aaaaaaa|abcdefgh|hhhhhhh
 #+NAME: laplPirBor
 [[./img/im18.png]]
 
-** Imagenes hibridas
+** Imágenes híbridas
 
-Para la construccion de imagenes hibridas nos hemos servido de funciones
-de OpenCV.En primer lugar vamos a hibridar un pajaro y un avion.
-Usando una mascara Gaussiana de tamano 11 y sigma 5 para obtener 
-las frecuencias bajas del avion y una mascara gaussiana de tamano 
-7 y sigma 5 para obtener las frecuencias altas del pajaro se obtiene,
+Para la construcción de imágenes híbridas nos hemos servido de funciones
+de OpenCV.En primer lugar vamos a híbrida un pajaro y un avión.
+Usando una mascara Gaussiana de tamaño 11 y sigma 5 para obtener 
+las frecuencias bajas del avión y una mascara gaussiana de tamaño 
+7 y sigma 5 para obtener las frecuencias altas del pájaro se obtiene,
 esta [[planeBird][imagen]].
  
-#+CAPTION: Imagen hibrida de un avion y un pajaro size1=11,sigma1=5, size2=7 y sigma2=5
+#+CAPTION: Imagen híbrida de un avión y un pájaro size1=11,sigma1=5, size2=7 y sigma2=5
 #+NAME: planeBird 
 [[./img/im19.png]]
 
-En segundo lugar vamos a hibridar un perro y un gato.
+En segundo lugar vamos a híbrida un perro y un gato.
 Usando una mascara Gaussiana de tamano 15 y sigma 5 para obtener 
-las frecuencias bajas del perro y una mascara gaussiana de tamano 
+las frecuencias bajas del perro y una mascara gaussiana de tamaño 
 35 y sigma 33 para obtener las frecuencias altas del gato se obtiene,
 esta [[dogCat][imagen]].
  
@@ -243,8 +243,8 @@ esta [[dogCat][imagen]].
 [[./img/im20.png]]
 
 En tercer lugar vamos a hibridar un submarino y un pez.
-Usando una mascara Gaussiana de tamano 11 y sigma 9 para obtener 
-las frecuencias bajas del submarino y una mascara gaussiana de tamano 
+Usando una mascara Gaussiana de tamaño 11 y sigma 9 para obtener 
+las frecuencias bajas del submarino y una mascara gaussiana de tamaño 
 7 y sigma 5 para obtener las frecuencias altas del pez se obtiene,
 esta [[subFish][imagen]].
  
@@ -253,8 +253,8 @@ esta [[subFish][imagen]].
 [[./img/im21.png]]
 
 En cuarto lugar vamos a hibridar una moto y una bici.
-Usando una mascara Gaussiana de tamano 9 y sigma 7 para obtener 
-las frecuencias bajas de la moto y una mascara gaussiana de tamano 
+Usando una mascara Gaussiana de tamaño 9 y sigma 7 para obtener 
+las frecuencias bajas de la moto y una mascara gaussiana de tamaño 
 15 y sigma 13 para obtener las frecuencias altas de la bici se obtiene,
 esta [[motoBike][imagen]].
  
@@ -264,7 +264,7 @@ esta [[motoBike][imagen]].
 
 En quinto lugar vamos a hibridar a Einstein y a Marilyn Monroe.
 Usando una mascara Gaussiana de tamano 9 y sigma 6 para obtener 
-las frecuencias bajas de Einstein y una mascara gaussiana de tamano 
+las frecuencias bajas de Einstein y una mascara gaussiana de tamaño 
 13 y sigma 8 para obtener las frecuencias altas de Marilypn se obtiene,
 esta [[einstMari][imagen]].
  
@@ -274,15 +274,15 @@ esta [[einstMari][imagen]].
 
 ** Bonus
 
-A continuacion vamos a dar paso a la resolucion de los ejercicios de
-bonificacion.
+A continuación vamos a dar paso a la resolución de los ejercicios de
+bonificación.
 
 *** Calculo del vector mascara Gaussiano.
 
-Se ha desarrollado una funcion que devuelve una vector 1D mascara Gaussiano.
+Se ha desarrollado una función que devuelve una vector 1D mascara Gaussiano.
 Dado un sigma se devuelve un vector que encierra mas del 95% de la 
-distribucion. (Es decir esta a 3 desviaciones estandar del centro de
-la gaussiana). En el archivo main se imprime el tamano correspondiente
+distribución. (Es decir esta a 3 desviaciones estándar del centro de
+la gaussiana). En el archivo main se imprime el tamaño correspondiente
 para cada sigma y los tres primeros elementos de la mascara, como se
 puede observar en esta [[gaussMasks][imagen]].
  
@@ -290,59 +290,59 @@ puede observar en esta [[gaussMasks][imagen]].
 #+NAME: gaussMasks
 [[./img/gaussianMasks.png]]
 
-*** Convolucion 1D
+*** Convolución 1D
 
-Se ha desarrollado una funcion que calcula la convolucion 1D a una 
-fila de una senal sea en blanco y negro o color en el main hay un 
+Se ha desarrollado una función que calcula la convolución 1D a una 
+fila de una señal sea en blanco y negro o color en el main hay un 
 ejemplo de uso donde se imprime [[convRow][una parte de la fila convolucionada]]
 
-#+CAPTION: Ejemplo de utilizacion de la convolucion propia 1D
+#+CAPTION: Ejemplo de utilización de la convolución propia 1D
 #+NAME: convRow
 [[./img/convRow.png]]
 
-*** Convolucion separable 2D.
+*** Convolución separable 2D.
 
-Se ha desarrollado codigo propio para convolucionar con una mascara
-separrable en 2D. La convolucion funciona tanto para imagenes a color
-como [[im24][esta]]. Como para imagenes en escala de grises como [[im25][esta]]
+Se ha desarrollado código propio para convolucionar con una mascara
+separable en 2D. La convolución funciona tanto para imágenes a color
+como [[im24][esta]]. Como para imágenes en escala de grises como [[im25][esta]]
 
-#+CAPTION: Convolucion 2D a color con mascara de Gauss
+#+CAPTION: Convolución 2D a color con mascara de Gauss
 #+NAME: im24
 [[./img/im24.png]]
 
 
-#+CAPTION: Convolucion 2D en escala de grises
+#+CAPTION: Convolución 2D en escala de grises
 #+NAME: im25
 [[./img/im25.png]]
 
-*** Construccion de una piramide gaussiana con funciones propias
+*** Construcción de una pirámide gaussiana con funciones propias
 
 Se han desarrollado funciones propias para construir una piramide 
 gaussiana de 5 niveles. Ademas se han desarrollado funciones propias
 para construir imagenes hibridas y se ensenan mediante una piramide
 Gaussiana.
 
-En primer lugar mostramos la [[planeBirdPyr][imagen hibrida entre un avion y un pajaro]].
+En primer lugar mostramos la [[planeBirdPyr][imagen híbrida entre un avión y un pájaro]].
 
-#+CAPTION: Piramide gaussiana avion-pajaro
+#+CAPTION: Pirámide gaussiana avión-pájaro
 #+NAME: planeBirdPyr
 [[./img/im26.png]]
 
 
-En segundo lugar mostramos la [[dogCatPyr][imagen hibrida entre un perro y un gato]]
+En segundo lugar mostramos la [[dogCatPyr][imagen híbrida entre un perro y un gato]]
 
-#+CAPTION: Piramide gaussiana perro-gato
+#+CAPTION: Pirámide gaussiana perro-gato
 #+NAME: dogCatPyr
 [[./img/im27.png]]
 
 
-En tercer lugar mostramos la [[subFishPyr][imagen hibrida entre un submarino y un pez]]
+En tercer lugar mostramos la [[subFishPyr][imagen híbrida entre un submarino y un pez]]
 
 #+CAPTION: Piramide gaussiana submarino-pez
 #+NAME: subFishPyr
 [[./img/im28.png]]
 
-En cuarto lugar mostramos la [[motoBikePyr][imagen hibrida entre una moto y una bici]]
+En cuarto lugar mostramos la [[motoBikePyr][imagen híbrida entre una moto y una bici]]
 
 #+CAPTION: Piramide gaussiana moto-bici
 #+NAME: motoBikePyr
@@ -354,24 +354,24 @@ En quinto lugar mostramos la [[einstMariPyr][imagen hibrida entre Einstein y una
 #+NAME: einstMariPyr
 [[./img/im30.png]]
 
-*** Imagenes hibridas a color
+*** Imagenes híbridas a color
 
-Por ultimo realizamos las parejas de imagenes hibridas a color utilizando
+Por ultimo realizamos las parejas de imágenes híbridas a color utilizando
 funciones propias.
 
-En primer lugar vamos a hibridar un pajaro y un avion.
+En primer lugar vamos a hibridar un pajaro y un avión.
 Usando una mascara Gaussiana de sigma 5 para obtener 
 las frecuencias bajas del avion y una mascara gaussiana de tamano 
-sigma 2 para obtener las frecuencias altas del pajaro se obtiene,
+sigma 2 para obtener las frecuencias altas del pájaro se obtiene,
 esta [[ownPlaneBird][imagen]].
  
-#+CAPTION: Imagen hibrida de un avion y un pajaro sigma1=5 y sigma2=2
+#+CAPTION: Imagen híbrida de un avión y un pájaro sigma1=5 y sigma2=2
 #+NAME: ownPlaneBird 
 [[./img/im31.png]]
 
 En segundo lugar vamos a hibridar un perro y un gato.
 Usando una mascara Gaussiana de sigma 3 para obtener 
-las frecuencias bajas del perro y una mascara gaussiana de tamano 
+las frecuencias bajas del perro y una mascara gaussiana de tamaño 
 6 para obtener las frecuencias altas del gato se obtiene,
 esta [[ownDogCat][imagen]].
  
@@ -381,7 +381,7 @@ esta [[ownDogCat][imagen]].
 
 En tercer lugar vamos a hibridar un submarino y un pez.
 Usando una mascara Gaussiana de sigma 3 para obtener 
-las frecuencias bajas del submarino y una mascara gaussiana de tamano 
+las frecuencias bajas del submarino y una mascara gaussiana de tamaño 
 sigma 2 para obtener las frecuencias altas del pez se obtiene,
 esta [[ownSubFish][imagen]].
  
@@ -405,7 +405,7 @@ las frecuencias bajas de Einstein y una mascara gaussiana de  sigma 3
 para obtener las frecuencias altas de Marilyn se obtiene,
 esta [[ownEinstMari][imagen]].
  
-#+CAPTION: Imagen hibrida entre Einstein y Marilyn Monroe sigma1=4 y sigma2=3
+#+CAPTION: Imagen híbrida entre Einstein y Marilyn Monroe sigma1=4 y sigma2=3
 #+NAME: ownEinstMari 
 [[./img/im35.png]]
 
