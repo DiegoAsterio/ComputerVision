@@ -9,8 +9,6 @@ import math
 import pdb
 import random
 
-numIm = 0
-
 def leeImagen(filename, flagColor):
     """ Reads an image from a file and shows it in grey or color.
     
@@ -39,15 +37,10 @@ def pintaI(im):
         Matrix containing values for an image
 
     """
-    global numIm
-    # cv.namedWindow('imagen', cv.WINDOW_AUTOSIZE)
-    # cv.imshow('imagen',im)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
-
-    cv.imwrite("/home/asterio/Pictures/im{:d}.png".format(numIm),im)
-    numIm = numIm + 1
-        
+    cv.namedWindow('imagen', cv.WINDOW_AUTOSIZE)
+    cv.imshow('imagen',im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 def transformarColor(vim):
     """ A vector of images that doesn't have to be in color is transformed into a vector
@@ -129,8 +122,7 @@ def pintaVarias(vim):
         An array of images. Each image is represented as a matrix.
     
     """
-    global numIm
-    # cv.namedWindow('varias', cv.WINDOW_AUTOSIZE) 
+    cv.namedWindow('varias', cv.WINDOW_AUTOSIZE) 
     vimColor = vim
     vimColor = transformarColor(vim)
     altoMaximo = getAltoMaximo(vimColor)
@@ -139,12 +131,9 @@ def pintaVarias(vim):
     imAImprimir = vimColor[0]
     for i in range(1,len(vim)):
         imAImprimir = cv.hconcat([imAImprimir,vimColor[i]]) 
-        # pdb.set_trace()
-    # cv.imshow('varias', imAImprimir)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
-    cv.imwrite("/home/asterio/Pictures/im{:d}.png".format(numIm),imAImprimir)
-    numIm = numIm + 1
+    cv.imshow('varias', imAImprimir)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 def modI(im, vpix):             
     """ Modifies pixels in an image
@@ -375,18 +364,6 @@ def correctSignal(sig):
     imM.reshape(itsShape)
     return imM
 
-def correctingHomeo(im):
-    imRet = im
-    if len(im.shape)==3:
-        channels = cv.split(imRet)
-        corrected = []
-        for channel in channels:
-            corrected.append(correctSignal(channel))
-        imRet = cv.merge(corrected)
-    else:
-        imRet = correctSignal(imRet)
-    return imRet
-
 def showGaussianPyr(im,border=cv.BORDER_DEFAULT):
     """ Shows a Gaussian pyramid of four levels
     
@@ -542,6 +519,22 @@ def calculateConvolution1D(mask, signal):
     return ret
         
 def convoluteWithSeparableMask(kerX,kerY,im):
+    """ Calculates convolution for a 2D separable mask
+    we use reflected borders.
+
+    Parameters
+    ----------
+
+    kerX : array_like
+        Mask for x in an array.
+
+    kerY : array_like
+        Mask for x in an array.
+
+    im : matrix_like
+        OpenCV matrix
+
+    """
     alto = None
     ancho = None
     profundo = None
@@ -565,6 +558,15 @@ def convoluteWithSeparableMask(kerX,kerY,im):
     return ret
 
 def subSample(im):
+    """ Subsamples an image in half the previous size
+
+    Parameters
+    ----------
+
+    im : matrix_like
+        OpenCV matrix
+
+    """
     mask = calculate1DGaussian(1)
     imC = convoluteWithSeparableMask(mask,mask,im)
 
@@ -587,13 +589,40 @@ def subSample(im):
     return np.copy(ret)
 
 def subSampleForFunction(im,borderType=None):
+    """ Two parameter function to reuse code
+
+    Parameters
+    ----------
+
+    im : matrix_like
+        OpenCV matrix
+
+    """
     return subSample(im)
 
 def showMyOwnGPyr(im):
+    """ Shows a gaussian pyramid
+
+    Parameters
+    ----------
+
+    im : matrix_like
+        OpenCV matrix
+
+    """
     fiveLevels = nLevelPyr(im,5,subSampleForFunction,None)
     pintaVarias(fiveLevels)
 
 def correctOverFlows(im):
+    """ Corrects overflow by truncating
+
+    Parameters
+    ----------
+
+    im : matrix_like
+        OpenCV matrix
+
+    """
     aShape = im.shape
     ret = im.reshape(-1)
     f = lambda x : 0 if x < 0 else 255 if x>255 else x
@@ -602,6 +631,24 @@ def correctOverFlows(im):
     return ret
     
 def myOwnHybridIm(sigma1,im1,sigma2,im2):
+    """ Generates an hybrid image
+
+    Parameters
+    ----------
+
+    sigma1 : float
+        Sigma for blurring
+
+    im1 : matrix_like
+        OpenCV matrix
+
+    sigma2 : float
+        Sigma for sharpening
+
+    im2 : matrix_like
+        OpenCV matrix
+
+    """
     im1I = im1.astype('float')
     im2I = im2.astype('float')
     ker1 = calculate1DGaussian(sigma1)
@@ -616,5 +663,23 @@ def myOwnHybridIm(sigma1,im1,sigma2,im2):
     return blurred1.astype('uint8'), hifreq.astype('uint8'), ret.astype('uint8')
 
 def showMyOwnHybridIm(sigma1,im1,sigma2,im2):
+    """ Shows an hybrid image
+
+    Parameters
+    ----------
+
+    sigma1 : float
+        Sigma for blurring
+
+    im1 : matrix_like
+        OpenCV matrix
+
+    sigma2 : float
+        Sigma for sharpening
+
+    im2 : matrix_like
+        OpenCV matrix
+
+    """
     imgs = myOwnHybridIm(sigma1,im1,sigma2,im2)
     pintaVarias(imgs)
