@@ -20,7 +20,7 @@ if __name__=="__main__":
     core.pintaI(im2Gauss)       
 
     print("b) Obtaining 1D masks and representing them as arrays")
-    parameters = [(1,0,3),  (0,1,3), (1,1,3), (2,0,3), (0,2,3), (2,2,3)]
+    parameters = [(1,0,3),  (1,0,5), (1,0,7), (1,0,9), (1,0,11), (1,1,3), (2,0,3), (0,2,3), (2,2,3)]
 
     for dx, dy, size in parameters:
         kx, ky = core.obtainMasks(dx,dy,size)
